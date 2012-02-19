@@ -68,6 +68,14 @@ Standards are cool, everybody should have some and stick to them!
 
 \section{Usecases, Features, and Requirements}
 
+In case of a collision on the bus, that is, two devices are sending data at the same time, we either receive:
+\begin{itemize}
+\item nothing,
+\item garbage, or
+\item correct data, in case two devices are sending identical data and we have good conditions for (un)lucky coincidences.
+\end{itemize}
+Therefore we cannot make any assumption on what will happen in this case.
+
 \begin{itemize}
 \item up to about 200 devices per bus segment
 \item fast auto discovery and negotiation of devices
@@ -83,16 +91,42 @@ Standards are cool, everybody should have some and stick to them!
 \section{Architectural Overview}
 \subsection{Participants in haqbus}
 There ar two kinds of devices partaking in comunication: Those who are capable of becoming busmaster and those who aren't.
-As a matter of fact, there is no problem in designing all devices busmaster capable, for practical reasons this might not be desired as it will
-slow down busmaster negotiation and cost resources wich can be scarce on small devices.
-There must be at least one busmaster capable device on each bus segment.
+The first are called \emph{potential busmaster} or PBM, the latter \emph{not master capaple} or NMC.
+As a matter of fact, there is no problem in designing all devices as PBMs, for practical reasons this might not be desired as it will
+slow down busmaster negotiation and cost resources wich can be scarce on small devices. 
+There must be at least one PBM on each bus segment.
 
-There are currently 2 or 3 roles in which a device could participate in a \haqbus installation:
+There are currently 3 roles in which a device could participate in a \haqbus installation:
 \begin{enumerate}
-\item busmaster
-\item active slave
-\item (maybe) passive slave
+\item active busmaster (ABM)
+\item standby, or sleeping, busmaster (SBM)
+\item passive slave (PAS) 
 \end{enumerate}
+
+
+
+\begin{table}
+  \centering
+    \begin{tabular}{|l|l|}
+        \hline
+        device type & device role \\ \hline
+        PBM         & ABM         \\ 
+        PBM         & SBM         \\ 
+        NMC         & PAS         \\
+        \hline
+    \end{tabular}
+    \caption{%
+    All valid combinations of device types and their roles.    
+    }
+
+\end{table}
+
+Keep in mind, that a SBM is a PBM-device, that in most cases acts very much like an NMC-device in its role as PAS, with the one difference,
+that it can become an ABM if required, e.g. if there is no other ABM on the bus.
+If you understood the last sentence, you will have memorized the shothands for devices and their roles by now.
+
+
+
 The busmaster is responsible for doin all the stuff FIXME
 
 
