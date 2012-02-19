@@ -89,21 +89,20 @@ Therefore we cannot make any assumption on what will happen in this case.
 
 
 \section{Architectural Overview}
-\subsection{Participants in haqbus}
+\subsection{Participants and their Roles in haqbus}
 There ar two kinds of devices partaking in comunication: Those who are capable of becoming busmaster and those who aren't.
 The first are called \emph{potential busmaster} or PBM, the latter \emph{not master capaple} or NMC.
 As a matter of fact, there is no problem in designing all devices as PBMs, for practical reasons this might not be desired as it will
 slow down busmaster negotiation and cost resources wich can be scarce on small devices. 
 There must be at least one PBM on each bus segment.
 
-There are currently 3 roles in which a device could participate in a \haqbus installation:
+There are currently 4 roles in which a device could participate in a \haqbus installation:
 \begin{enumerate}
 \item active busmaster (ABM)
 \item standby, or sleeping, busmaster (SBM)
-\item passive slave (PAS) 
+\item passive slave (PAS)
+\item not attached (NOA) 
 \end{enumerate}
-
-
 
 \begin{table}
   \centering
@@ -112,26 +111,45 @@ There are currently 3 roles in which a device could participate in a \haqbus ins
         device type & device role \\ \hline
         PBM         & ABM         \\ 
         PBM         & SBM         \\ 
+        PBM         & NOA         \\
+        NMC         & NOA     \\
         NMC         & PAS         \\
+        	 
         \hline
     \end{tabular}
     \caption{%
     All valid combinations of device types and their roles.    
     }
-
 \end{table}
 
 Keep in mind, that a SBM is a PBM-device, that in most cases acts very much like an NMC-device in its role as PAS, with the one difference,
 that it can become an ABM if required, e.g. if there is no other ABM on the bus.
-If you understood the last sentence, you will have memorized the shothands for devices and their roles by now.
+A PBM- or NMC-device will change its role to NOA when powered on and further change its role to SBM, or PAS when it is recognized by the ABM.
+In case there is no ABM present, a PBM in NOA-role will become the new ABM.
+If you understood the last three sentences, you will have memorized by now the shorthands for devices and their roles.
 
+\subsection{Basic Interaction between Participants}
+Rule 1: The active busmaster is responsible for doin' all the stuff. (At least mostly all off the time.)
 
+The thing we want to do is, to avoide all possible collisions by using time division multiple access
+(TDMA) with dynamic timeslots that are coordinated by the ABM.
 
-The busmaster is responsible for doin all the stuff FIXME
+\begin{itemize}
+\item If an ABM is present, it is the only device that is allowed to speak without permission.
+\item The ABM tells other devices (SBM, PAS, and NOA) in regular intervalls when and for how long they are allowed to speak.
+\item The ABM respect these time periods and doesn't interfere while a SBM, a PAS or a NOA is speaking.
+\item SBM and PAS speak only when they are asked to and no longer than they are allowed.
+\item NOA speak only, when asked by the ABM (discovery) or when they detect that there is no ABM present (master discovery).
+\end{itemize}
+
+Once, an ABM is established and in control, this should provide a reasonable stable and deterministic flow of data without any collision.
+Whether this is still the case in situations where data packets get corrupted is still to examine!
+However, this can only be applied after a discovery phase, which will be discussed in the next section.
+
 
 
 \subsection{Layer Specification}
-Bus communication is done in 4 different Layers ... or 3 or 5 ?? FIXME
+Bus communication is done in 4 different Layers ... or 3 or 5 or 23?? FIXME
 They correspond to the famous ISO/OSI layer model as follows... NOT , so FIXME
 
 %Traditional OSI ISO Stuff:
