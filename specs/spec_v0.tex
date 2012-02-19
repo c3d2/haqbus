@@ -1,11 +1,14 @@
 \documentclass[a4paper,12pt]{scrartcl}
+\usepackage{libertine}
+%\usepackage[EU2]{fontenc}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{luainputenc}
 \usepackage{graphicx}
 \usepackage{luatextra}
 %\usepackage{ngerman}
 %\usepackage[ngerman]{babel}
 %\usepackage{babelbib}
-\usepackage{libertine}
-\usepackage[EU2]{fontenc}
+
 \usepackage{listings}
 \usepackage{color}
 \usepackage{url}
@@ -27,6 +30,7 @@
 \title{\haqbus}
 \author{C3D2}
 
+
 \date{}
 \makeindex
 
@@ -41,7 +45,7 @@
 \maketitle
 
 \begin{abstract}
-This is the first Draft of the haqbus protokoll specification. The haqbus is a field communication system for hackerpsace-automation.
+This is the very first draft of the \haqbus protocol specification. The haqbus is an EIA-485 (aka RS-485) based field communication system connecting arbitrary devices for hackerspace-automation.
 \end{abstract}
 
 \vspace{5cm}
@@ -51,26 +55,43 @@ from Dresden with love by \\
 \Large
 < < < / > >  \\
 \Large
-Chaos Computer Club Dresden, c3d2.de 
-\end{center}
+Chaos Computer Club Dresden, c3d2.de \\
 \biolinumGlyph{Tux} timestamp: \directlua{tex.print(os.time())}  \biolinumGlyph{Tux}
+\end{center}
+
 \newpage
 \tableofcontents
 \newpage
 %===============================================================
 \section{Introduction}
-Standards are cool, everybody should have one!
+Standards are cool, everybody should have some and stick to them!
+
+\section{Usecases, Features, and Requirements}
+
+\begin{itemize}
+\item up to about 200 devices per bus segment
+\item fast auto discovery and negotiation of devices
+\item collision avoidance
+\item no realtime guarantees yet, as-fast-as-possible communications
+\item single busmaster, multiple busmaster capable candidates
+\item busmaster handover to other busmaster capable devices
+
+\end{itemize}
 
 
-\section{Usecases and Requirements}
 
 \section{Architectural Overview}
-\subsection{Participants in \haqbus}
-There are currently 3 roles in which a device could participate in a \haqbus installation:
+\subsection{Participants in haqbus}
+There ar two kinds of devices partaking in comunication: Those who are capable of becoming busmaster and those who aren't.
+As a matter of fact, there is no problem in designing all devices busmaster capable, for practical reasons this might not be desired as it will
+slow down busmaster negotiation and cost resources wich can be scarce on small devices.
+There must be at least one busmaster capable device on each bus segment.
+
+There are currently 2 or 3 roles in which a device could participate in a \haqbus installation:
 \begin{enumerate}
 \item busmaster
-\item passive slave
 \item active slave
+\item (maybe) passive slave
 \end{enumerate}
 The busmaster is responsible for doin all the stuff FIXME
 
@@ -80,13 +101,14 @@ Bus communication is done in 4 different Layers ... or 3 or 5 ?? FIXME
 They correspond to the famous ISO/OSI layer model as follows... NOT , so FIXME
 
 %Traditional OSI ISO Stuff:
-%Layer 1: physical layer
-%Layer 2: data link layer
-%Layer 3: network layer
-%Layer 4: transport layer
-%Layer 5: session layer
-%Layer 6: presentation layer
-%Layer 7: application layer
+%Layer 1: physical layer	PLEASE
+%Layer 2: data link layer	DO
+%Layer 3: network layer		NOT
+%Layer 4: transport layer	THROW
+%Layer 5: session layer		SALAMI
+%Layer 6: presentation layer	PIZZA
+%Layer 7: application layer	AWAY
+%Layer 8: user
 
 \section{Layer one (nameme osi 1)}
 TIA/EIA-485 \cite{EIA485}.
@@ -105,14 +127,14 @@ But rule No. 1 of RFC1925 \cite{RFC1925} applies
 	\begin{tabular}{l c l}
 		number        & sugested color      & usage \\
 		\hline
-		1             & white/green stripe  &   FIXME \\
-		2             & green solid         &    \\
-		3             & white/orange stripe &    \\
-		4             & blue solid          &    \\
-		5             & white/blue stripe   &    \\
-		6             & orange solid        &    \\
-		7             & white/brown stripe  &    \\
-		8             & brown solid         &    \\
+		1             & white/green stripe  &   GND \\
+		2             & green solid         &   GND \\
+		3             & white/orange stripe &   signal RS485A\\
+		4             & blue solid          &   VCC \\
+		5             & white/blue stripe   &   VCC \\
+		6             & orange solid        &   signal RS485B\\
+		7             & white/brown stripe  &   spare C \\
+		8             & brown solid         &   spare D \\
 	\end{tabular}
 	\caption{%
 	Overview of wire asignment  \newline%
@@ -129,6 +151,17 @@ But rule No. 1 of RFC1925 \cite{RFC1925} applies
 \end{figure}
 
 \section{Layer two (nameme osi 2+3)}
+
+\subsection{Busmaster Discovery and Negotiation}
+At cold start or when the current busmaster drops out (disconnected, failure), there will be no communication flow on the bus.
+When this is detected, the busmaster role must be negotiated between all busmaster capable device.
+
+TODO: Describe busmaster discovery and negotiation.
+
+
+FIXME: Should there be an announcement of the protocol version in use?
+This way an upgrade to more advanced future protocols (e.g. real time capable with timeslots) will be easier.
+
 
 \subsection{Bus Checking Phase}
 During the bus checking phase the busmaster checks which of all registered devices are still alive. For this the busmaster iterates over its internal table of registered devices and sends a paket of type ASKSTAT~\ref{cp:ASKSTAT} to them.
@@ -150,7 +183,7 @@ Busmaster ask a slave for status
 
 \subsubsection{STALIVE}
 Normal status answer. Slave sends this, if alive, but nothing to say.
-\label{cp:ASKSTAT}
+\label{cp:STALIVE}
 \begin{figure}[h!]
 \begin{bytefield}{32}
 \bitheader{0,7,8,15,16,23,24,31} \\
@@ -162,7 +195,7 @@ Normal status answer. Slave sends this, if alive, but nothing to say.
 
 \subsubsection{STALIVPL}
 This is similar to STALIVE, but with additional Payload.
-\label{cp:ASKSTAT}
+\label{cp:STALIVPL}
 \begin{figure}[h!]
 \begin{bytefield}{32}
 \bitheader{0,7,8,15,16,23,24,31} \\
@@ -178,8 +211,8 @@ This is similar to STALIVE, but with additional Payload.
 \end{figure}
 
 
-\subsubsection{ASKSTAT}
-\label{cp:ASKSTAT}
+\subsubsection{ASKSTATXXX}
+\label{cp:ASKSTATXXX}
 \begin{figure}[h!]
 \begin{bytefield}{32}
 \bitheader{0,7,8,15,16,23,24,31} \\
