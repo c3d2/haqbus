@@ -8,7 +8,6 @@
 %\usepackage{ngerman}
 %\usepackage[ngerman]{babel}
 %\usepackage{babelbib}
-
 \usepackage{listings}
 \usepackage{color}
 \usepackage{url}
@@ -144,7 +143,18 @@ The thing we want to do is, to avoide all possible collisions by using time divi
 
 Once, an ABM is established and in control, this should provide a reasonable stable and deterministic flow of data without any collision.
 Whether this is still the case in situations where data packets get corrupted is still to examine!
-However, this can only be applied after a discovery phase, which will be discussed in the next section.
+However, this can only be applied after a discovery phase, which will be discussed in section FIXME.
+
+\subsection{Operational Status of the Bus}
+The bus as a whole system hast only three status\footnote{Yes, AFAIK this really is the plural of status, it's pronounced with a long `u'.}:
+\begin{itemize}
+ \item CHAOS is the state after power on. There is no ABM present and all devices are NOA. Master discovery happens to end CHAOS and achieve PENTA.
+ \item PENTA is the normal and well ordered operational state. It is achieved after a master discovery led to the negotation of one single ABM.
+ \item B0RKEN happens sometimes when an ABM drops out without handing over the ABM role to another PBM, e.g. when just switchig off the ABM.
+\end{itemize}
+B0RKEN can be treated the same way as CHAOS, but there might be a slightly more elegant solution as all the remaining SBMs should know of each others existence.
+After master discovery during CHAOS, there is no dedicated discovery phase, as discovery happens all the time and is interwoven with normal operation during PENTA.
+
 
 
 
