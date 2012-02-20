@@ -1,7 +1,9 @@
 \documentclass[a4paper,12pt]{scrartcl}
 \usepackage{libertine}
+
+\usepackage[\directlua{if os.getenv("USER")=="john" then tex.sprint([=[ EU2 ]=]) else tex.sprint([=[T1]=]) end} ]{fontenc}
 %\usepackage[EU2]{fontenc}
-\usepackage[T1]{fontenc}
+%\usepackage[T1]{fontenc}
 \usepackage[utf8]{luainputenc}
 \usepackage{graphicx}
 \usepackage{luatextra}
@@ -57,7 +59,7 @@ from Dresden with love by \\
 Chaos Computer Club Dresden, c3d2.de \\
 \biolinumGlyph{Tux} timestamp: \directlua{tex.print(os.time())}  \biolinumGlyph{Tux}
 \end{center}
-
+test hier: \directlua{if os.getenv("USER")=="john" then tex.sprint([=[ EU2 ]=]) else tex.sprint([=[T1]=]) end} ende 
 \newpage
 \tableofcontents
 \newpage
