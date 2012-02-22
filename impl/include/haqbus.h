@@ -42,21 +42,21 @@ typedef uint16_t haq_addr ;
 
 typedef union{
 	uint8_t w[4];
-	struct {uint8_t fb0 : 1 ;
-		uint8_t type :5 ;
-		uint8_t x0 : 2 ;
+	struct {uint8_t fb0   : 1 ; //always 1 for valid package
+		uint8_t pt0   : 2 ; //2 parity bits (one over type, one whole 4bytes)
+		uint8_t type  : 5 ; //type
 
-		uint8_t fb1 :1 ;
-		uint8_t adr0: 5;
-		uint8_t x2 :2 ;
+		uint8_t fb1   : 1 ; //always 0 for valid package
+		uint8_t pt1   : 1 ; //parity of addr0
+		uint8_t addr0 : 6 ; // address chunk 1
 
-		uint8_t fb2 :1 ;
-		uint8_t adr1: 5;
-		uint8_t x3 :2 ;
+		uint8_t fb2   : 1 ;
+		uint8_t pt2   : 1 ;
+		uint8_t addr1 : 6 ;
 
-		uint8_t fb3 :1 ;
-		uint8_t adr2: 5;
-		uint8_t x3 :2 ;
+		uint8_t fb3   : 1 ;
+		uint8_t pt3   : 1 ;
+		uint8_t addr2 : 6 ;
 		}p;
 }framing_head
 
