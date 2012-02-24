@@ -163,6 +163,31 @@ The bus as a whole system hast only three status\footnote{Yes, AFAIK this really
 B0RKEN can be treated the same way as CHAOS, but there might be a slightly more elegant solution as all the remaining SBMs should know of each others existence.
 After master discovery during CHAOS, there is no dedicated discovery phase, as discovery happens all the time and is interwoven with normal operation during PENTA.
 
+\subsection{Master Discoery}
+Master discovery ist still to be specified and might or might not be tricky.
+
+\subsection{Keep Alive and Discovery - KAD}
+At time of PENTA basic tasks of the ABM are to keep track of all devices connected to the bus,
+to allow new devices in NOA role to join the conversation, and to detect devices that have been dropped out.
+The ABM is doing this actively in regular intervalls to ensure that NOAs are attached within a resonable time span.
+Whether other devices are listening to the entire conversation to keep track of attached devices for themselves ist still subject to discussion.
+There are quite some good reasons to do so, especially if there exist devices that are eager to inherit the ABM role if the ABM drops out
+or if there are multiple SBMs serving as data injection points that are going to relay data to other devices.
+
+To keep layer 8 happy, the transition time from NOA to SBM or PAS should not necessarily exceed the duration
+of 9,192,631,770 periods of the radiation corresponding to the transition between the two hyperfine levels
+of the ground state of the caesium-133 atom (1 second).
+
+Keep alive and discovery is turn based, but might be interleaved with other traffic on the bus.
+Therefore only the order of the following events are of importance, not their direct succession.
+
+A KAD round starts and ends with the ABM announcing the begin of a new KAD round. (Command to be specified, FIXME)
+
+
+
+
+ Wheter othe
+A basic strategy is to send keep
 
 
 \section{Layer Specification}
