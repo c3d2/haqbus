@@ -86,7 +86,7 @@ Therefore we cannot make any assumption on what will happen in this case.
 \item no realtime guarantees yet, as-fast-as-possible communications
 \item single busmaster, multiple busmaster capable candidates
 \item busmaster handover to other busmaster capable devices
-
+\item 500.000 baud gives us roughly 44Kbyte/sec
 \end{itemize}
 
 
@@ -163,8 +163,22 @@ The bus as a whole system hast only three status\footnote{Yes, AFAIK this really
 B0RKEN can be treated the same way as CHAOS, but there might be a slightly more elegant solution as all the remaining SBMs should know of each others existence.
 After master discovery during CHAOS, there is no dedicated discovery phase, as discovery happens all the time and is interwoven with normal operation during PENTA.
 
-\subsection{Master Discoery}
+\subsection{Master Discovery}
 Master discovery ist still to be specified and might or might not be tricky.
+
+
+After a PBM has discovered that data flow on the bus has ceased for a specified amount oft time (tDead) FIXME,
+it enters master discovery mode.
+During this time it emits at random times a 1 byte packet called CLAIM and listens at the bus for other CLAIM packets.
+If no other CLAIMs are detected for a certain amount of time the PBM declares itself ABM.
+If other CLAIMS are detected the PBM stops sending CLAIM messages but still listens on the bus for other CLAIMs or a discovery initiated by another PBM that went ABM.
+If for some reason this should not happen within tDead after the last CLAIM something went wrong and the PBM enters discovery mode again.
+
+
+
+
+
+
 
 \subsection{Keep Alive and Discovery - KAD}
 At time of PENTA basic tasks of the ABM are to keep track of all devices connected to the bus,
