@@ -164,32 +164,54 @@ The bus as a whole system hast only three status\footnote{Yes, AFAIK this really
 B0RKEN can be treated the same way as CHAOS, but there might be a slightly more elegant solution as all the remaining SBMs should know of each others existence.
 After master discovery during CHAOS, there is no dedicated discovery phase, as discovery happens all the time and is interwoven with normal operation during PENTA.
 
-\subsection{Master Discovery}
+\subsection{Master Discovery (MAD)}
 Master discovery ist still to be \sout{specified} \uwave{discussed and/or tested} and might or might not be tricky.
 
+\paragraph{bigalex' proposal}
 
 After a PBM has discovered that data flow on the bus has ceased for a specified amount oft time ($t_{dead}$),
 it enters master discovery mode.
 During this time it emits at random times a 1 byte packet called CLAIM and listens at the bus for other CLAIM packets.
-If no other CLAIMs are detected for a certain amount of time the PBM declares itself ABM.
-If other CLAIMs are detected the PBM stops sending CLAIM messages but still listens on the bus for other CLAIMs or a discovery initiated by another PBM that went ABM.
-If for some reason this should not happen within $t_{dead}$ after the last CLAIM something went wrong and the PBM enters discovery mode again.
+If no other CLAIMs are detected for a certain amount of time and number of announcements the PBM declares itself ABM.
+If other CLAIMs are detected the PBM stops sending CLAIM messages, but still listens on the bus for other CLAIMs or a discovery initiated by another PBM that went ABM.
+If for some reason this should not happen within $t_{dead}$ after the last CLAIM received, something went wrong and the PBM enters master discovery mode again.
 
-To clarify this process and to make it quantifieable, each PBM declares a number of
+To clarify this process and to make it somehow quantifiable, each PBM divides future time into a number of
 $k$ timeslots\footnote{Let's say $k=1024$} that are not necessarily in sync with the
 timeslots of other PBMs but have the same size.
-Each PBM starts a bus master discovery round (BMDR) with chosing a random number $r$ between $1$ and $k$.
-While listening on the bus for CLAIMs a PBM waits until timslot r and sends a CLAIM if no other
-CLAIM arrived on the bus before.
+Each PBM starts a bus master discovery round (BMDR) with chosing a random number $r$ between $1$ and $k$ and starts the timer for ticking off timeslots.
+While listening on the bus for CLAIMs a PBM waits until timslot $r$ and sends a CLAIM if no other CLAIM was recieved before.
+Then the PBM waits and listens until the las timeslot has gone bye and therefore the BMDR has ended.
+
+If still no CLAIM was received the PBM repeats this procedure $i$ times.
+When there are still no other CLAIMs, the PBM enters the ABM role and starts moving data on the bus by initiating keep alive and discovery (KAD).
+
+Whenever a PBM receives a CLAIM packet it silently accepts that it lost the race to become ABM, goes passive and waits for KAD from the new ABM.
+
+Given about $n=200$ devices and 1024 timeslots it is quite likely that there are some slots with two or more PBMs sending CLAIMs at the same time or slots that remain empty.
+In case two or more PBMs sending their CLAIM in the same slot the other PBMs will receive nothing, garbage or a correct CLAIM.
+Howevere, it is \em{quite unlikely} that there are no timeslots containing a readable CLAIM that will cause all listening PBMs to give up and shut up.
+And it is \em{very unlikely} that this happens $i$ consecutive times.
+(FIXME: Can someone please run a simulation to have a rough estimate or even use some mathemagical tricks to compute the probability that for n cards
+distributed randomly over k slots, there is no slot containing a single card?).
+So in most cases after the first few BMDRs there will be a slot with a valid CLAIM caused either by a single PBM or by some freak accidential interference from two
+or more PBMs sending in the same slot.
+So most of the PBMs will have given up by then and there is liklely a single PBM left or less likely a small number of PBMs that happend to send in the same slot. 
+In the latter case they will \em{very likely} be singled out by the remaining BMDRs as with the start of each BMDR new timeslots will be randomly choosen.
+
+How long will MAD take? Let's assume we apply a timslot that is three bytes long, using the second byte for sending CLAIMs and the remaining two as
+buffer against collisons from slot overlap\footnote{Maybe one byte for CLAIM and one byte buffer will suffice.}.
+A BMDR will take the time necesary to send 3 x 1024 bytes.
+With about 44 x 1024 bytes/sec on the bus we can have easily 14 BMDRs per second which should be enough.
+With some insight from simulation runs or analytic computations for choosing a sweet spot for $k$ and $i$ the time for MAD can be brought further down,
+well below a fragment of a second.
+Furthermore it should be a sensible step to limit the number of PBMs per bus segment below 200, allowing for smaller $k$.
 
 
-to be continued ....
 
 
 
 
-
-\paragraph{bigalex' proposal}
 
 \paragraph{m4xx' proposal} m4xx has some ideas too.
 
