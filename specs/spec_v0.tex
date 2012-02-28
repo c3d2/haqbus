@@ -209,12 +209,8 @@ well below a fragment of a second.
 Furthermore it should be a sensible step to limit the number of PBMs per bus segment below 200, allowing for smaller $k$.
 
 
-
-
-
-
-
 \paragraph{m4xx' proposal} m4xx has some ideas too.
+
 
 \subsection{Keep Alive and Discovery - KAD}
 At time of PENTA basic tasks of the ABM are to keep track of all devices connected to the bus,
@@ -232,12 +228,11 @@ Keep alive and discovery is turn based, but might be interleaved with other traf
 Therefore only the order of the following events are of importance, not their direct succession.
 
 A KAD round starts and ends with the ABM announcing the begin of a new KAD round. (Command to be specified, FIXME)
+FIXME is this really necessary?
+
+The ABM sends 
 
 
-
-
- Wheter othe
-A basic strategy is to send keep
 
 
 \section{Layer Specification}
